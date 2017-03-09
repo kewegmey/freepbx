@@ -19,8 +19,7 @@ yum -y groupinstall core base "Development Tools"
 yum -y install mariadb-server mariadb php php-mysql php-mbstring \
   httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel \
   audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie \
-  cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connect
-or-odbc
+  cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connect or-odbc
 
 # Legacy Pear Reqs
 pear install Console_Getopt
