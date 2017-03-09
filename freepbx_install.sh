@@ -5,7 +5,7 @@
 echo 'This script will now disable selinux and restart your machine.  Press any key to continue. Then rerun this script once your machine is back up. ctrl-c if you dont want that.'
 read -n 1 -s
 
-if [ $(getenforce) -ne 'Disabled' ]; then
+if [[ $( getenforce ) != "Disabled" ]]; then
   sed -i 's/\(^SELINUX=\).*/\SELINUX=disabled/' /etc/sysconfig/selinux
   sed -i 's/\(^SELINUX=\).*/\SELINUX=disabled/' /etc/selinux/config
   reboot
