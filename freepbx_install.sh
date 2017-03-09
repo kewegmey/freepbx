@@ -3,6 +3,7 @@
 
 # I'm really sorry about this....freepbx actually checks to see if selinux is enabled...working on a way to get it running w/o disabling'
 echo 'This script will now disable selinux and restart your machine.  Press any key to continue. Then rerun this script once your machine is back up. ctrl-c if you dont want that.'
+read -n 1 -s
 
 if [ $(getenforce) -ne 'Disabled' ]; then
   sed -i 's/\(^SELINUX=\).*/\SELINUX=disabled/' /etc/sysconfig/selinux
