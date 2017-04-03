@@ -2,7 +2,7 @@
 # Installs freepbx 13 on centos 7
 
 # Array of dependencies
-deps= (mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
+deps=(mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
 
 
 # Freepbx actually checks to see if selinux is enabled...working on a way to get it running w/o disabling'
@@ -27,8 +27,9 @@ yum -y groupinstall core base "Development Tools"
 
 # Install other dependencies for asterisk and freepbx
 # Loop through deps and install
-for dep in ${deps[@]} do:
-	yum install -y $dep
+for dep in "${deps[@]}"
+do
+  yum install -y $dep
 done
 
 # Legacy Pear Reqs (see http://wiki.freepbx.org/display/FOP/Installing+FreePBX+13+on+CentOS+7)
