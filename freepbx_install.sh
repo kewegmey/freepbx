@@ -1,9 +1,17 @@
 #!/usr/bin/bash
+##########################################################################################################################
 # Installs freepbx 13 on centos 7
+# Thanks to Andrew Nagy and the other editors of the freepbx wiki for creating the guide I followed to make this script.  
+# http://wiki.freepbx.org/display/FOP/Installing+FreePBX+13+on+CentOS+7
+##########################################################################################################################
 
-# Array of dependencies
+# Array of dependencies - removed a few from the guide that clearly were not needed.  
 deps=(mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
 
+
+##########################################################################################################################
+# Pre-reqs
+##########################################################################################################################
 
 # Freepbx actually checks to see if selinux is enabled...working on a way to get it running w/o disabling'
 
@@ -69,7 +77,11 @@ systemctl start httpd.service
 # Add asterisk user
 adduser asterisk -M -c "Asterisk User"
 
-# Download sources
+
+##########################################################################################################################
+# Download Sources
+##########################################################################################################################
+
 
 # Download Asterisk sources
 cd /usr/src
@@ -79,8 +91,10 @@ wget -O jansson.tar.gz https://github.com/akheron/jansson/archive/v2.7.tar.gz
 wget http://www.pjsip.org/release/2.4/pjproject-2.4.tar.bz2
 
 
+##########################################################################################################################
 # Compile and install pjproject
 # This is the 'new' sip library and is nicer for most uses than chan_sip
+##########################################################################################################################
 cd /usr/src
 tar -xjvf pjproject-2.4.tar.bz2
 rm -f pjproject-2.4.tar.bz2
@@ -91,8 +105,10 @@ make dep
 make
 make install
 
+##########################################################################################################################
 # Compile and Install jansson
 # Json library for C 
+##########################################################################################################################
 cd /usr/src
 tar vxfz jansson.tar.gz
 rm -f jansson.tar.gz
@@ -102,8 +118,10 @@ autoreconf -i
 make
 make install 
 
+##########################################################################################################################
 # Compile and Install Asterisk
 # Open Source Communications Software - the core of freepbx, does all the work
+##########################################################################################################################
 cd /usr/src
 tar xvfz asterisk-13-current.tar.gz
 rm -f asterisk-13-current.tar.gz
@@ -121,8 +139,10 @@ ldconfig
 # Make sure asterisk is down since we will be managing it later with freepbx
 systemctl disable asterisk
 
+##########################################################################################################################
 # Soundfiles
 # Prerecoreded voice files/sounds and g722 support for HD audio.
+##########################################################################################################################
 cd /var/lib/asterisk/sounds
 wget http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-en-wav-current.tar.gz
 wget http://downloads.asterisk.org/pub/telephony/sounds/asterisk-extra-sounds-en-wav-current.tar.gz
@@ -138,6 +158,9 @@ rm -f asterisk-extra-sounds-en-g722-current.tar.gz
 tar xfz asterisk-core-sounds-en-g722-current.tar.gz
 rm -f asterisk-core-sounds-en-g722-current.tar.gz
 
+##########################################################################################################################
+# Asterisk install cleanup
+##########################################################################################################################
 # Permissions
 # Make sure asterisk owns everyhting it needs to own.
 chown asterisk. /var/run/asterisk
@@ -153,8 +176,11 @@ sed -i 's/^\(User\|Group\).*/\1 asterisk/' /etc/httpd/conf/httpd.conf
 sed -i 's/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
 systemctl restart httpd.service
 
+
+##########################################################################################################################
 # Download and install freepbx
 # Freepbx is really just a PHP app that runs a bunch of commands in asterisk.  
+##########################################################################################################################
 cd /usr/src
 wget http://mirror.freepbx.org/modules/packages/freepbx/freepbx-13.0-latest.tgz
 tar xfz freepbx-13.0-latest.tgz
