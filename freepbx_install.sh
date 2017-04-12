@@ -5,7 +5,7 @@
 # http://wiki.freepbx.org/display/FOP/Installing+FreePBX+13+on+CentOS+7
 # kewegmey@mtu.edu
 ##########################################################################################################################
-debug=0
+debug='no'
 
 
 # Freepbx actually checks to see if selinux is enabled...working on a way to get it running w/o disabling'
@@ -23,14 +23,14 @@ if [[ $( getenforce ) != "Disabled" ]]; then
   reboot
 fi
 
-function install {
-
-# Array of dependencies - removed a few from the guide that clearly were not needed.  
-deps=(mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
-
+function pre {
 echo "##########################################################################################################################"
 echo "# Pre-reqs"
 echo "##########################################################################################################################"
+
+# Array of dependencies - removed a few from the guide that clearly were not needed.  
+deps=(mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel expect sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
+
 
 # Update and get dev tools
 yum -y update
@@ -80,11 +80,12 @@ systemctl start httpd.service
 # Add asterisk user
 adduser asterisk -M -c "Asterisk User"
 
+} # end pre function
 
+function asterisk {
 echo "##########################################################################################################################"
 echo "# Download Sources"
 echo "##########################################################################################################################"
-
 
 # Download Asterisk sources
 cd /usr/src
@@ -176,8 +177,9 @@ sed -i 's/\(^upload_max_filesize = \).*/\120M/' /etc/php.ini
 sed -i 's/^\(User\|Group\).*/\1 asterisk/' /etc/httpd/conf/httpd.conf
 sed -i 's/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
 systemctl restart httpd.service
+} # End asterisk function
 
-
+function freepbx {
 echo "##########################################################################################################################"
 echo "# Download and install freepbx"
 echo "# Freepbx is really just a PHP app that runs a bunch of commands in asterisk.  "
@@ -214,11 +216,20 @@ echo "Freepbx install complete.  You may want to restart the asterisk core befor
 
 # done
 
-} # end install function
+} # end freepbx function
 
 
-if [[ $debug ]]; then
-  install > /dev/null
+if [[ $debug == 'yes' ]]; then
+ echo "Doing pre instation tasks"
+ pre
+ echo "Installing asterisk from source"
+ asterisk
+ echo "Installing freepbx"
+ freepbx
+ echo "Freepbx install complete.  You may want to restart the asterisk core before trying to do anyhting.  OR just reboot your machine."  
+ 
 else
-  install  	
+  pre > /dev/null      
+  asterisk > /dev/null 
+  freepbx > /dev/nulL  
 fi
