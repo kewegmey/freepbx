@@ -23,6 +23,9 @@ if [[ $( getenforce ) != "Disabled" ]]; then
   reboot
 fi
 
+
+# This script is broken into bash functions so that the output from each can easily be redirected.  
+# Begin the pre reqs function.  This installes depenencies.
 function pre {
 echo "##########################################################################################################################"
 echo "# Pre-reqs"
@@ -32,7 +35,7 @@ echo "##########################################################################
 deps=(mariadb-server mariadb php php-mysql php-mbstring httpd ncurses-devel expect sendmail sendmail-cf sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git php-process crontabs cronie cronie-anacron wget vim php-xml uuid-devel sqlite-devel net-tools gnutls-devel php-pear unixODBC mysql-connector-odbc)
 
 
-# Update and get dev tools
+# Update system and get dev tools
 yum -y update
 yum -y groupinstall core base "Development Tools"
 
@@ -51,7 +54,7 @@ systemctl enable mariadb.service
 systemctl start mariadb
 
 # Database basic setup
-# The lazy route, I just call the mysql_secure_install and give it answers.
+# The lazy route, I just call the mysql_secure_installation and give it answers.
 # A better way may be to run the equivalent mysql commands.
 SECURE_MYSQL=$(expect -c "
 set timeout 10
@@ -73,7 +76,7 @@ expect eof
 
 echo "$SECURE_MYSQL"
 
-# Fire up apache
+# Fire up apache and run at boot
 systemctl enable httpd.service
 systemctl start httpd.service
 
@@ -82,6 +85,7 @@ adduser asterisk -M -c "Asterisk User"
 
 } # end pre function
 
+# This function installs asterisk
 function asterisk {
 echo "##########################################################################################################################"
 echo "# Download Sources"
@@ -138,12 +142,12 @@ make
 make install
 make config
 ldconfig
-# Make sure asterisk is down since we will be managing it later with freepbx
+# Make sure asterisk wont run at boot. We will be managing it later with freepbx.
 systemctl disable asterisk
 
 echo "##########################################################################################################################"
 echo "# Soundfiles"
-echo "# Prerecoreded voice files/sounds and g722 support for HD audio."
+echo "# Download pre-recoreded voice files/sounds and g722 support for HD audio."
 echo "##########################################################################################################################"
 cd /var/lib/asterisk/sounds
 wget http://downloads.asterisk.org/pub/telephony/sounds/asterisk-core-sounds-en-wav-current.tar.gz
@@ -179,6 +183,7 @@ sed -i 's/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
 systemctl restart httpd.service
 } # End asterisk function
 
+# This function installs freepbx
 function freepbx {
 echo "##########################################################################################################################"
 echo "# Download and install freepbx"
@@ -192,7 +197,7 @@ cd freepbx
 ./start_asterisk start
 ./install -n
 
-# Dat service
+# Create Service
 # create systemd unit that manages the whole system.  
 echo "
 [Unit]
@@ -218,18 +223,20 @@ echo "Freepbx install complete.  You may want to restart the asterisk core befor
 
 } # end freepbx function
 
-
-if [[ $debug == 'yes' ]]; then
+# Now call the functions
+# If we are not debugging add status lines for each function and redirect stdout to /dev/null.
+# User will still see stderr so if there are issues they will know about it.  
+if [[ $debug == 'no' ]]; then
  echo "Doing pre instation tasks"
- pre
+ pre > /dev/null
  echo "Installing asterisk from source"
- asterisk
+ asterisk > /dev/null
  echo "Installing freepbx"
- freepbx
+ freepbx > /dev/null
  echo "Freepbx install complete.  You may want to restart the asterisk core before trying to do anyhting.  OR just reboot your machine."  
  
 else
-  pre > /dev/null      
-  asterisk > /dev/null 
-  freepbx > /dev/nulL  
+  pre     
+  asterisk
+  freepbx
 fi
