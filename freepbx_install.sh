@@ -224,10 +224,10 @@ echo "Freepbx install complete.  You may want to restart the asterisk core befor
 } # end freepbx function
 
 # Now call the functions
-# If we are not debugging add status lines for each function and redirect stdout to /dev/null.
+# If we are not debugging add status lines for each function and redirect stdout to /dev/null.  This quiets down the script.  
 # User will still see stderr so if there are issues they will know about it.  
 if [[ $debug == 'no' ]]; then
- echo "Doing pre instation tasks"
+ echo "Doing pre-instalation tasks"
  pre > /dev/null
  echo "Installing asterisk from source"
  asterisk > /dev/null
