@@ -5,6 +5,7 @@
 # http://wiki.freepbx.org/display/FOP/Installing+FreePBX+13+on+CentOS+7
 # kewegmey@mtu.edu
 ##########################################################################################################################
+# Set to no to keep stdout quiet.  If you want to see everything set to yes.
 debug='no'
 
 
